@@ -12,9 +12,10 @@ async function deploy() {
 
     // Commande rsync ajustée
     const rsyncCommand = `
-      rsync -avz -e "ssh -i /home/debian/.ssh/deploy_key -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}
+      rsync -avz --exclude='.git*' -e "ssh -i /home/debian/.ssh/deploy_key -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
     console.log('Executing rsync with command:', rsyncCommand);
+
 
     // Initialiser la connexion SSH
     const conn = new Client();
