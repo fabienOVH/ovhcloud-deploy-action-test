@@ -1,0 +1,1 @@
+Test de déploiement après modification de rsync
