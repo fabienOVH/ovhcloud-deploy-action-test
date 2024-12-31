@@ -1,0 +1,22 @@
+name: 'Deploy to OVHcloud VPS'
+description: 'Automatically deploy websites to an OVHcloud VPS using GitHub Actions.'
+author: 'FabienOVH'
+branding:
+  icon: 'server'
+  color: 'blue'
+inputs:
+  ssh_host:
+    description: 'IP address of the VPS'
+    required: true
+  ssh_user:
+    description: 'SSH user for the VPS'
+    required: true
+  ssh_private_key:
+    description: 'SSH private key for accessing the VPS'
+    required: true
+  site_path:
+    description: 'Path to the site directory on the VPS (e.g., /var/www/html)'
+    required: true
+runs:
+  using: 'node16'
+  main: 'index.js'

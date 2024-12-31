@@ -1,0 +1,22 @@
+name: Test OVHcloud Deploy Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to VPS
+      uses: ./ # Utilise l'Action locale pour les tests
+      with:
+        ssh_host: ${{ secrets.SSH_HOST }}
+        ssh_user: ${{ secrets.SSH_USER }}
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        site_path: /var/www/html
