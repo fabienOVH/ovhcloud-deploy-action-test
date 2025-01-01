@@ -20,3 +20,11 @@ jobs:
         ssh_user: ${{ secrets.SSH_USER }}
         ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
         site_path: /var/www/html
+- name: Check debug key
+  run: ls -l /tmp/deploy_key
+
+    - name: Upload debug key
+      uses: actions/upload-artifact@v3
+      with:
+        name: debug-deploy-key
+        path: /tmp/deploy_key
