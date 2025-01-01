@@ -41,6 +41,12 @@ try {
 } catch (error) {
   throw new Error(`Test SSH échoué : ${error.message}`);
 }
+const fs = require('fs');
+const sshKeyPath = '/tmp/deploy_key';
+
+// Lire la clé temporaire et afficher les premiers caractères
+const tempKey = fs.readFileSync(sshKeyPath, 'utf8');
+console.log('Premiers caractères de la clé temporaire générée dans le workflow :', tempKey.slice(0, 50));
 
 
     // Création de la commande rsync
