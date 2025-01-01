@@ -26,6 +26,7 @@ fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600
 // Vérifier le contenu du fichier écrit
 const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
 console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
+console.log('Clé écrite pour test manuel :', writtenKey);
 
 
     // Création de la commande rsync
