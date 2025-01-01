@@ -42,11 +42,22 @@ try {
   throw new Error(`Test SSH échoué : ${error.message}`);
 }
 const fs = require('fs');
+
 const sshKeyPath = '/tmp/deploy_key';
 
-// Lire la clé temporaire et afficher les premiers caractères
-const tempKey = fs.readFileSync(sshKeyPath, 'utf8');
-console.log('Premiers caractères de la clé temporaire générée dans le workflow :', tempKey.slice(0, 50));
+// Écrire la clé privée dans un fichier temporaire
+fs.writeFileSync(sshKeyPath, core.getInput('ssh_private_key'), {
+  mode: 0o600,
+});
+console.log('Clé SSH temporaire écrite dans :', sshKeyPath);
+
+// Vérifier que le fichier existe
+if (fs.existsSync(sshKeyPath)) {
+  console.log('Clé temporaire présente après écriture.');
+} else {
+  console.error('Clé temporaire absente après écriture.');
+}
+
 
 
     // Création de la commande rsync
