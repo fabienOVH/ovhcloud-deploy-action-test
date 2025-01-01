@@ -16,6 +16,10 @@ async function deploy() {
     `;
     console.log('Executing rsync with command:', rsyncCommand);
 
+    console.log('Chemin source utilisé : ./');
+    console.log('Chemin cible utilisé :', sitePath);
+    console.log('Commande rsync :', rsyncCommand);
+
 
     // Initialiser la connexion SSH
     const conn = new Client();
