@@ -26,14 +26,23 @@ fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600
 // Vérifier le contenu du fichier écrit
 const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
 console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
-console.log('Clé écrite pour test manuel :', writtenKey);
-const debugKey = sshPrivateKey.replace(/PRIVATE KEY/, 'PRIVATE-DEBUG-KEY');
-console.log('Clé temporaire (format debug) :', debugKey);
+
+fs.chmodSync(sshKeyPath, 0o600);
+console.log(`Permissions du fichier clé temporaire : ${fs.statSync(sshKeyPath).mode.toString(8)}`);
+
+const testCommand = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no ${sshUser}@${sshHost} echo "Connexion réussie"`;
+console.log('Commande de test SSH :', testCommand);
+try {
+  execSync(testCommand, { stdio: 'inherit' });
+  console.log('Test SSH réussi.');
+} catch (error) {
+  throw new Error(`Test SSH échoué : ${error.message}`);
+}
 
 
     // Création de la commande rsync
     const rsyncCommand = `
-      rsync -avz --delete --exclude='.git*' -e "ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
+      rsync -avz --delete --exclude='.git*' -e "ssh -v -i ${sshKeyPath} -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
     console.log('Commande rsync :', rsyncCommand);
 
