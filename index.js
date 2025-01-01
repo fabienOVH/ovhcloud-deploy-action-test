@@ -35,10 +35,26 @@ async function deploy() {
       throw new Error(`Test SSH échoué : ${error.message}`);
     }
 
+try {
+  execSync(testCommand, { stdio: 'inherit' });
+  console.log('Test SSH réussi.');
+} catch (error) {
+  console.error('Erreur pendant le test SSH :', error);
+  core.setFailed(error.message);
+  return;
+}
+
     // Ajouter ici la commande rsync ou d'autres commandes spécifiques
     const rsyncCommand = `
       rsync -avz --delete --exclude='.git*' -e "ssh -v -i ${sshKeyPath} -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
+
+console.log('Chemin temporaire pour la clé :', sshKeyPath);
+console.log('Commande SSH de test :', testCommand);
+console.log('Commande rsync :', rsyncCommand);
+
+
+
     console.log('Commande rsync :', rsyncCommand);
     execSync(rsyncCommand, { stdio: 'inherit' });
     console.log('Déploiement réussi.');
