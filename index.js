@@ -1,6 +1,6 @@
 const core = require('@actions/core');
-const { Client } = require('ssh2');
-const fs = require('fs');
+const { execSync } = require('child_process');
+const path = require('path');
 
 async function deploy() {
   try {
@@ -10,63 +10,26 @@ async function deploy() {
     const sshPrivateKey = core.getInput('ssh_private_key');
     const sitePath = core.getInput('site_path');
 
-    // Commande rsync ajustée
+    // Correction du répertoire courant
+    console.log('Répertoire courant avant correction :', process.cwd());
+    const actionDirectory = path.resolve(__dirname);
+    process.chdir(actionDirectory);
+    console.log('Répertoire courant après correction :', process.cwd());
+
+    // Création de la commande rsync
     const rsyncCommand = `
       rsync -avz --delete --exclude='.git*' -e "ssh -i /home/debian/.ssh/deploy_key -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
-    console.log('Répertoire courant :', process.cwd());
-
-    console.log('Executing rsync with command:', rsyncCommand);
-
-    console.log('Chemin source utilisé : ./');
-    console.log('Chemin cible utilisé :', sitePath);
     console.log('Commande rsync :', rsyncCommand);
 
+    // Exécution de la commande rsync localement
+    execSync(rsyncCommand, { stdio: 'inherit' });
 
-    // Initialiser la connexion SSH
-    const conn = new Client();
-    conn
-      .on('ready', () => {
-        console.log('SSH connection established');
-
-        conn.exec(rsyncCommand, (err, stream) => {
-          if (err) {
-            core.setFailed(`Command execution failed: ${err.message}`);
-            conn.end();
-            return;
-          }
-
-          stream
-            .on('close', (code, signal) => {
-              console.log(`Command finished with code ${code}, signal ${signal}`);
-              conn.end();
-
-              if (code === 0) {
-                console.log('Deployment completed successfully.');
-              } else {
-                core.setFailed('Deployment failed.');
-              }
-            })
-            .on('data', (data) => {
-              console.log('STDOUT:', data.toString());
-            })
-            .stderr.on('data', (data) => {
-              console.error('STDERR:', data.toString());
-            });
-        });
-      })
-      .on('error', (err) => {
-        core.setFailed(`SSH connection failed: ${err.message}`);
-      })
-      .connect({
-        host: sshHost,
-        username: sshUser,
-        privateKey: sshPrivateKey,
-      });
+    console.log('Déploiement réussi.');
   } catch (error) {
-    core.setFailed(`Deployment failed: ${error.message}`);
+    console.error('Erreur pendant le déploiement :', error.message);
+    core.setFailed(error.message);
   }
 }
 
-// Exécuter la fonction principale
 deploy();
