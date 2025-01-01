@@ -1,0 +1,18 @@
+name: Debug SSH Key
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  debug-ssh:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Écrire et afficher la clé
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/debug_key
+        chmod 600 /tmp/debug_key
+        cat /tmp/debug_key
+
+    - name: Tester la connexion SSH
+      run: ssh -i /tmp/debug_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "Connexion réussie"
