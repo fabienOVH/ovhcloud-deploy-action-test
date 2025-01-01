@@ -15,6 +15,12 @@ async function deploy() {
     // Créer un fichier temporaire pour la clé SSH
     const sshKeyPath = path.join(os.tmpdir(), 'deploy_key');
 
+if (!fs.existsSync(sshKeyPath)) {
+  throw new Error(`Le fichier clé SSH ${sshKeyPath} n'existe pas.`);
+} else {
+  console.log(`Le fichier clé SSH ${sshKeyPath} existe et est prêt à l'utilisation.`);
+}
+
 
 // Vérification de l'encodage
 console.log('Clé privée brute (debug, 50 premiers caractères) :', sshPrivateKey.slice(0, 50) + '...');
