@@ -14,66 +14,34 @@ async function deploy() {
 
     // Créer un fichier temporaire pour la clé SSH
     const sshKeyPath = path.join(os.tmpdir(), 'deploy_key');
-    fs.writeFileSync(sshKeyPath, sshPrivateKey, { mode: 0o600 });
+    fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600 });
     console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
 
-const rawKey = fs.readFileSync(sshKeyPath, 'utf8');
-console.log('Clé SSH complète écrite temporairement :\n', rawKey);
+    // Vérifier la clé temporaire
+    const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
+    console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
 
-// Vérifier la clé avant de l'écrire dans le fichier temporaire
-console.log('Premiers caractères de la clé privée avant écriture :', sshPrivateKey.slice(0, 50) + '...');
+    // Vérifier les permissions
+    const stats = fs.statSync(sshKeyPath);
+    console.log('Permissions du fichier clé temporaire :', stats.mode.toString(8));
 
-// Écrire la clé privée dans un fichier temporaire avec remplacement des retours à la ligne
-fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600 });
+    // Tester la connexion SSH
+    const testCommand = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no ${sshUser}@${sshHost} echo "Connexion réussie"`;
+    console.log('Commande de test SSH :', testCommand);
+    try {
+      execSync(testCommand, { stdio: 'inherit' });
+      console.log('Test SSH réussi.');
+    } catch (error) {
+      throw new Error(`Test SSH échoué : ${error.message}`);
+    }
 
-// Vérifier le contenu du fichier écrit
-const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
-console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
-
-fs.chmodSync(sshKeyPath, 0o600);
-console.log(`Permissions du fichier clé temporaire : ${fs.statSync(sshKeyPath).mode.toString(8)}`);
-
-const testCommand = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no ${sshUser}@${sshHost} echo "Connexion réussie"`;
-console.log('Commande de test SSH :', testCommand);
-try {
-  execSync(testCommand, { stdio: 'inherit' });
-  console.log('Test SSH réussi.');
-} catch (error) {
-  throw new Error(`Test SSH échoué : ${error.message}`);
-}
-const fs = require('fs');
-
-const sshKeyPath = '/tmp/deploy_key';
-
-// Écrire la clé privée dans un fichier temporaire
-fs.writeFileSync(sshKeyPath, core.getInput('ssh_private_key'), {
-  mode: 0o600,
-});
-console.log('Clé SSH temporaire écrite dans :', sshKeyPath);
-
-// Vérifier que le fichier existe
-if (fs.existsSync(sshKeyPath)) {
-  console.log('Clé temporaire présente après écriture.');
-} else {
-  console.error('Clé temporaire absente après écriture.');
-}
-
-
-
-    // Création de la commande rsync
+    // Ajouter ici la commande rsync ou d'autres commandes spécifiques
     const rsyncCommand = `
       rsync -avz --delete --exclude='.git*' -e "ssh -v -i ${sshKeyPath} -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
     console.log('Commande rsync :', rsyncCommand);
-
-    // Exécution de la commande rsync
     execSync(rsyncCommand, { stdio: 'inherit' });
-
     console.log('Déploiement réussi.');
-
-    // Optionnel : Supprimer la clé SSH temporaire après utilisation
-    fs.unlinkSync(sshKeyPath);
-    console.log('Clé SSH temporaire supprimée.');
   } catch (error) {
     console.error('Erreur pendant le déploiement :', error.message);
     core.setFailed(error.message);
