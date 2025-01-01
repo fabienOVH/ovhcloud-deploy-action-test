@@ -27,6 +27,8 @@ fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600
 const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
 console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
 console.log('Clé écrite pour test manuel :', writtenKey);
+const debugKey = sshPrivateKey.replace(/PRIVATE KEY/, 'PRIVATE-DEBUG-KEY');
+console.log('Clé temporaire (format debug) :', debugKey);
 
 
     // Création de la commande rsync
