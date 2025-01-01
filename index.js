@@ -14,7 +14,7 @@ async function deploy() {
 
     // Créer un fichier temporaire pour la clé SSH
     const sshKeyPath = path.join(os.tmpdir(), 'deploy_key');
-    fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600 });
+    fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n').trim(), { mode: 0o600 });
     console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
 
     // Vérifier la clé temporaire
