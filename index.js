@@ -1,7 +1,6 @@
 const core = require('@actions/core');
 const { execSync } = require('child_process');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 
 async function deploy() {
@@ -11,7 +10,13 @@ async function deploy() {
     const sshPrivateKey = core.getInput('ssh_private_key');
     const sitePath = core.getInput('site_path');
 
-    const sshKeyPath = path.join(os.tmpdir(), 'deploy_key');
+    const sshKeyPath = path.join(process.cwd(), 'deploy_key');
+
+    // Supprimer tout fichier précédent
+    if (fs.existsSync(sshKeyPath)) {
+      fs.unlinkSync(sshKeyPath);
+      console.log(`Fichier précédent supprimé : ${sshKeyPath}`);
+    }
 
     // Vérifier que la clé privée n'est pas vide
     if (!sshPrivateKey || sshPrivateKey.trim().length === 0) {
@@ -22,14 +27,16 @@ async function deploy() {
 
     // Corriger les retours à la ligne et supprimer les espaces inutiles
     const sanitizedKey = sshPrivateKey
-      .replace(/\r\n/g, '\n')
-      .replace(/\n\n+/g, '\n')
+      .replace(/\r\n/g, '\n')  // Normaliser les retours à la ligne
+      .replace(/\n\n+/g, '\n') // Supprimer les lignes vides multiples
       .trim();
 
     // Écrire la clé dans un fichier temporaire
     try {
       fs.writeFileSync(sshKeyPath, sanitizedKey, { mode: 0o600 });
       console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
+      fs.chmodSync(sshKeyPath, 0o600);
+      console.log(`Permissions ajustées pour le fichier clé : ${sshKeyPath}`);
     } catch (error) {
       console.error('Erreur lors de l’écriture du fichier clé SSH :', error.message);
       process.exit(1);
