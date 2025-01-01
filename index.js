@@ -17,6 +17,17 @@ async function deploy() {
     fs.writeFileSync(sshKeyPath, sshPrivateKey, { mode: 0o600 });
     console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
 
+// Vérifier la clé avant de l'écrire dans le fichier temporaire
+console.log('Premiers caractères de la clé privée avant écriture :', sshPrivateKey.slice(0, 50) + '...');
+
+// Écrire la clé privée dans un fichier temporaire avec remplacement des retours à la ligne
+fs.writeFileSync(sshKeyPath, sshPrivateKey.replace(/\r\n/g, '\n'), { mode: 0o600 });
+
+// Vérifier le contenu du fichier écrit
+const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
+console.log('Premiers caractères de la clé écrite :', writtenKey.slice(0, 50) + '...');
+
+
     // Création de la commande rsync
     const rsyncCommand = `
       rsync -avz --delete --exclude='.git*' -e "ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
