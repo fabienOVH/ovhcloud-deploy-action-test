@@ -31,3 +31,8 @@ jobs:
         name: debug-deploy-key
         path: /tmp/deploy_key
 
+    - name: Test SSH direct
+      run: |
+       echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/test_key
+       chmod 600 /tmp/test_key
+       ssh -i /tmp/test_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "Connexion réussie"
