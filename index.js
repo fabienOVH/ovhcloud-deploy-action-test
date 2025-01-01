@@ -31,7 +31,6 @@ async function deploy() {
 
     console.log('Chemin temporaire pour la clé :', sshKeyPath);
     console.log('Commande SSH de test :', testCommand);
-    console.log('Commande rsync :', rsyncCommand);
 
     try {
       execSync(testCommand, { stdio: 'inherit' });
