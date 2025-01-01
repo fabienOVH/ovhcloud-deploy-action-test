@@ -15,6 +15,23 @@ async function deploy() {
     // Créer un fichier temporaire pour la clé SSH
     const sshKeyPath = path.join(os.tmpdir(), 'deploy_key');
 
+// Vérification de l'encodage
+console.log('Clé privée brute (debug, 50 premiers caractères) :', sshPrivateKey.slice(0, 50) + '...');
+const encodedKey = Buffer.from(sshPrivateKey, 'utf8');
+console.log('Encodage après Buffer :', encodedKey.toString('utf8').slice(0, 50) + '...');
+console.log('Premiers caractères du secret SSH_PRIVATE_KEY :', sshPrivateKey.slice(0, 50) + '...');
+const debugCommand = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no ${sshUser}@${sshHost} echo "Connexion test manuelle réussie"`;
+console.log('Commande SSH de test manuel :', debugCommand);
+
+try {
+  execSync(debugCommand, { stdio: 'inherit' });
+  console.log('Test SSH manuel réussi.');
+} catch (error) {
+  console.error('Test SSH manuel échoué :', error.message);
+  throw error; // Pour stopper l'exécution si cela échoue
+}
+
+
     // Corriger les retours à la ligne et supprimer les espaces inutiles
 const sanitizedKey = sshPrivateKey.replace(/\r\n/g, '\n').trim();
 
