@@ -12,8 +12,10 @@ async function deploy() {
 
     // Commande rsync ajustée
     const rsyncCommand = `
-      rsync -avz --exclude='.git*' -e "ssh -i /home/debian/.ssh/deploy_key -o StrictHostKeyChecking=no" ./* ${sshUser}@${sshHost}:${sitePath}
+      rsync -avz --delete --exclude='.git*' -e "ssh -i /home/debian/.ssh/deploy_key -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
+    console.log('Répertoire courant :', process.cwd());
+
     console.log('Executing rsync with command:', rsyncCommand);
 
     console.log('Chemin source utilisé : ./');
