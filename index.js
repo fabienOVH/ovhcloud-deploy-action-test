@@ -25,6 +25,15 @@ const debugCommand = `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no ${sshUser
 console.log('Commande SSH de test manuel :', debugCommand);
 
 try {
+    fs.writeFileSync(sshKeyPath, sanitizedKey, { mode: 0o600 });
+    console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
+} catch (error) {
+    console.error('Erreur lors de l’écriture du fichier clé SSH :', error.message);
+    process.exit(1);
+}
+
+
+try {
   execSync(debugCommand, { stdio: 'inherit' });
   console.log('Test SSH manuel réussi.');
 } catch (error) {
@@ -32,18 +41,8 @@ try {
   throw error; // Pour stopper l'exécution si cela échoue
 }
 
-
     // Corriger les retours à la ligne et supprimer les espaces inutiles
 const sanitizedKey = sshPrivateKey.replace(/\r\n/g, '\n').trim();
-
-// Écrire la clé dans un fichier temporaire
-try {
-    fs.writeFileSync(sshKeyPath, sanitizedKey, { mode: 0o600 });
-    console.log(`Clé SSH temporaire écrite dans : ${sshKeyPath}`);
-} catch (error) {
-    console.error('Erreur lors de l’écriture du fichier clé SSH :', error.message);
-    process.exit(1);
-}
 
 // Vérifier la clé
 const writtenKey = fs.readFileSync(sshKeyPath, 'utf8');
