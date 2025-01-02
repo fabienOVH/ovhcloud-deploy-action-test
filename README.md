@@ -41,6 +41,15 @@ steps:
 - name: Checkout code
 uses: actions/checkout@v3
 
+- name: Add SSH Private Key
+  run: |
+   mkdir -p ~/.ssh
+   echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+   chmod 600 ~/.ssh/id_rsa
+   ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+   cat ~/.ssh/id_rsa # Debug : Vérifiez que la clé est correcte
+   cat ~/.ssh/known_hosts # Debug : Vérifiez les hôtes connus
+
 - name: Deploy to VPS
 uses: your-username/your-action-repo@v1
 with:
