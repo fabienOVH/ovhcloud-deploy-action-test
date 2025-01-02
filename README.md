@@ -42,7 +42,7 @@ steps:
 uses: actions/checkout@v3
 
 - name: Deploy to VPS
-uses: your-username/your-action-repo@v1
+uses: your-username/your-action-repo@v1.0.0
 with:
 ssh_host: ${{ secrets.SSH_HOST }}
 ssh_user: ${{ secrets.SSH_USER }}
