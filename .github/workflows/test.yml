@@ -13,6 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Add SSH Host to Known Hosts
+      run: |
+       mkdir -p ~/.ssh
+       ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+       cat ~/.ssh/known_hosts # Vérification du contenu
+
     - name: Deploy to VPS
       uses: ./ # Utilise l'Action locale pour les tests
       with:
