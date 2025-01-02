@@ -13,11 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Add SSH Host to Known Hosts
+    - name: Add SSH Private Key
       run: |
-       mkdir -p ~/.ssh
-       ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-       cat ~/.ssh/known_hosts # Vérification du contenu
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        cat ~/.ssh/id_rsa # Debug : Vérifiez que la clé est correcte
+        cat ~/.ssh/known_hosts # Debug : Vérifiez les hôtes connus
+
+    - name: Test SSH direct
+      run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "Connexion réussie"
 
     - name: Deploy to VPS
       uses: ./ # Utilise l'Action locale pour les tests
@@ -27,18 +33,3 @@ jobs:
         ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
         site_path: /var/www/html
       continue-on-error: true
-
-    - name: Check debug key
-      run: ls -l /tmp/deploy_key
-
-    - name: Upload debug key
-      uses: actions/upload-artifact@v3
-      with:
-        name: debug-deploy-key
-        path: /tmp/deploy_key
-
-    - name: Test SSH direct
-      run: |
-       echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/test_key
-       chmod 600 /tmp/test_key
-       ssh -i /tmp/test_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "Connexion réussie"
