@@ -13,7 +13,7 @@ async function deploy() {
 
     console.log('Connexion SSH réussie. Déploiement en cours...');
     const rsyncCommand = `
-      rsync -avz --delete --exclude='.git*' -e "ssh -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
+      rsync -avz --delete-excluded --exclude='.git*' -e "ssh -o StrictHostKeyChecking=no" ./ ${sshUser}@${sshHost}:${sitePath}/
     `;
     execSync(rsyncCommand, { stdio: 'inherit' });
 
